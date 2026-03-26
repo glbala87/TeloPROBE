@@ -1,0 +1,12 @@
+# TeloPROBE preset: ONT whole-genome sequencing (Mode A)
+mode: "wgs"
+platform: "ont"
+min_quality: 9
+min_length: 100
+min_repeats: 50
+motif_density_threshold: 0.5
+start_repeats_frac: 0.7
+post_boundary_ccc_threshold: 0.30
+identity_threshold: 0.8
+mapq_threshold: 20
+changepoint_method: "pelt"

@@ -1,0 +1,18 @@
+{
+  "error_motifs": {
+    "GTATAG": {"platform": "ont", "type": "basecaller_artifact"},
+    "CGCGCGCG": {"platform": "ont", "type": "basecaller_artifact"},
+    "CCACCG": {"platform": "ont", "type": "basecaller_artifact"},
+    "AGCGACAG": {"platform": "ont", "type": "basecaller_artifact"},
+    "ATAAGT": {"platform": "ont", "type": "basecaller_artifact"},
+    "CCTCGTCC": {"platform": "ont", "type": "basecaller_artifact"},
+    "TATAGT": {"platform": "ont", "type": "basecaller_artifact"},
+    "AGTACT": {"platform": "ont", "type": "basecaller_artifact"},
+    "GAGTCC": {"platform": "ont", "type": "basecaller_artifact"},
+    "TATACA": {"platform": "ont", "type": "basecaller_artifact"},
+    "TGGTCC": {"platform": "ont", "type": "basecaller_artifact"},
+    "CTCTCCTCT": {"platform": "ont", "type": "basecaller_artifact"}
+  },
+  "description": "Known basecalling error motifs that can appear in telomeric regions. Clustering of these motifs near a boundary suggests the boundary call is unreliable.",
+  "version": "1.0.0"
+}

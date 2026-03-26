@@ -1,0 +1,54 @@
+"""TeloSeq Snakemake workflow.
+
+Robust telomere length estimation from long-read sequencing data.
+Supports two modes:
+  - wgs: Whole-genome sequencing (ONT or PacBio)
+  - teloseq: Telomere-enriched protocol (Telo-seq)
+"""
+
+import os
+from pathlib import Path
+
+configfile: "config/default.yaml"
+
+# Resolve samples from config
+SAMPLES = config.get("samples", [config.get("sample_id", "sample")])
+OUTPUT_DIR = config.get("output_dir", "output")
+SKIP_MAPPING = config.get("skip_mapping", False)
+SKIP_CLUSTERING = config.get("skip_clustering", False)
+
+# Include modular rules (order matters for ruleorder)
+include: "rules/ingest.smk"
+include: "rules/candidate.smk"
+include: "rules/segment.smk"
+
+if not SKIP_MAPPING:
+    include: "rules/anchor.smk"
+    if not SKIP_CLUSTERING:
+        include: "rules/cluster.smk"
+
+include: "rules/estimate.smk"
+include: "rules/qc.smk"
+include: "rules/report.smk"
+
+
+def get_final_outputs():
+    """Determine final outputs based on configuration."""
+    outputs = []
+    for sample in SAMPLES:
+        base = f"{OUTPUT_DIR}/{sample}"
+        outputs.extend([
+            f"{base}/read_level.tsv",
+            f"{base}/sample_level.tsv",
+            f"{base}/qc_summary.tsv",
+        ])
+        if not SKIP_MAPPING:
+            outputs.append(f"{base}/arm_level.tsv")
+
+    outputs.append(f"{OUTPUT_DIR}/report.html")
+    return outputs
+
+
+rule all:
+    input:
+        get_final_outputs()

@@ -1,0 +1,50 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+description: "TeloPROBE configuration schema"
+type: object
+properties:
+  input_path:
+    type: string
+    description: "Path to input BAM/CRAM/FASTQ"
+  output_dir:
+    type: string
+    default: "output"
+  sample_id:
+    type: string
+    default: "sample"
+  reference:
+    type: string
+  mode:
+    type: string
+    enum: ["wgs", "teloprobe"]
+    default: "teloprobe"
+  platform:
+    type: string
+    enum: ["ont", "pacbio", "auto"]
+    default: "ont"
+  threads:
+    type: integer
+    minimum: 1
+    default: 4
+  skip_mapping:
+    type: boolean
+    default: false
+  min_quality:
+    type: number
+    minimum: 0
+    default: 9
+  min_length:
+    type: integer
+    minimum: 1
+    default: 100
+  min_repeats:
+    type: integer
+    minimum: 1
+    default: 100
+  changepoint_method:
+    type: string
+    enum: ["pelt", "binseg", "bayesian"]
+    default: "pelt"
+  bootstrap_n:
+    type: integer
+    minimum: 100
+    default: 1000

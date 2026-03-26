@@ -1,0 +1,63 @@
+# TeloPROBE default configuration
+# Override any parameter via CLI or custom config file
+
+# Input/Output
+input_path: ""
+output_dir: "output"
+sample_id: "sample"
+reference: ""
+
+# Mode: wgs (whole-genome long reads) or teloprobe (enriched protocol)
+mode: "teloprobe"
+
+# Platform: ont (Oxford Nanopore) or pacbio (PacBio HiFi)
+platform: "ont"
+
+# Processing
+threads: 4
+skip_mapping: false
+skip_clustering: false
+random_seed: 42
+
+# Read filtering
+min_quality: 9
+min_length: 100
+min_read_length_boundary: 160
+
+# Motif scanning
+min_repeats: 100
+filter_width: 10
+motif_density_threshold: 0.6
+motif_window_size: 120
+
+# Boundary detection
+start_window_frac: 0.3
+start_repeats_frac: 0.8
+min_qual_non_telo: 9
+post_boundary_ccc_threshold: 0.25
+max_errors: 5
+error_distance: 500
+
+# Change-point detection
+changepoint_method: "pelt"     # pelt, binseg, or bayesian
+changepoint_min_size: 60
+
+# HMM settings
+hmm_n_states: 3
+hmm_window_size: 6
+
+# Alignment (arm assignment)
+identity_threshold: 0.8
+mapq_threshold: 20
+
+# Allele clustering
+allele_min_reads: 10
+allele_method: "gmm"           # gmm or hdbscan
+
+# Bootstrap confidence intervals
+bootstrap_n: 1000
+bootstrap_alpha: 0.05
+
+# QC thresholds
+min_informative_reads: 20
+min_arm_reads: 10

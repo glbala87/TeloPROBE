@@ -1,0 +1,153 @@
+"""Snakemake workflow for TeloPROBE benchmarking.
+
+Runs all available tools on the same input data and generates comparison reports.
+
+Usage:
+    snakemake -s Snakefile --configfile configs/benchmark_config.yaml -j 4
+"""
+
+import os
+from pathlib import Path
+
+configfile: "configs/benchmark_config.yaml"
+
+INPUT_PATH = config["input_path"]
+OUTPUT_DIR = config.get("output_dir", "benchmark_output")
+PLATFORM = config.get("platform", "ont")
+REFERENCE = config.get("reference", "")
+THREADS = config.get("threads", 4)
+TOOLS = config.get("tools", ["teloprobe", "telogator2", "topsicle"])
+SIMULATE = config.get("simulate", False)
+
+
+rule all:
+    input:
+        f"{OUTPUT_DIR}/benchmark_report.html",
+        f"{OUTPUT_DIR}/tool_summary.tsv",
+        f"{OUTPUT_DIR}/pairwise_read_metrics.tsv",
+
+
+rule simulate:
+    """Generate simulated reads (if simulate mode)."""
+    output:
+        fastq=f"{OUTPUT_DIR}/simulated_reads.fastq",
+        truth=f"{OUTPUT_DIR}/ground_truth.tsv",
+    params:
+        n_reads=config.get("n_reads", 1000),
+        tl_mean=config.get("sim_tl_mean", 5000),
+        tl_std=config.get("sim_tl_std", 2000),
+        error_rate=config.get("sim_error_rate", 0.02),
+        tvr_fraction=config.get("sim_tvr_fraction", 0.05),
+        platform=PLATFORM,
+    run:
+        import sys
+        sys.path.insert(0, str(Path(workflow.basedir)))
+        from simulation.simulator import SimulationParams, simulate_reads
+        from simulation.simulator import write_simulated_fastq, write_ground_truth
+
+        params_obj = SimulationParams(
+            n_reads=params.n_reads,
+            tl_mean=params.tl_mean,
+            tl_std=params.tl_std,
+            platform=params.platform,
+            error_rate=params.error_rate,
+            tvr_fraction=params.tvr_fraction,
+        )
+        reads = simulate_reads(params_obj)
+        write_simulated_fastq(reads, output.fastq)
+        write_ground_truth(reads, output.truth)
+
+
+def get_input_path(wildcards):
+    if SIMULATE:
+        return f"{OUTPUT_DIR}/simulated_reads.fastq"
+    return INPUT_PATH
+
+
+rule run_teloprobe:
+    input: get_input_path
+    output: touch(f"{OUTPUT_DIR}/results_teloprobe/.done")
+    threads: THREADS
+    params:
+        reference=REFERENCE,
+        platform=PLATFORM,
+    shell:
+        """
+        teloprobe run \
+            -i {input} \
+            -o {OUTPUT_DIR}/results_teloprobe \
+            --platform {params.platform} \
+            --sample-id benchmark \
+            -t {threads} \
+            {"--reference " + params.reference if params.reference else "--skip-mapping"} \
+            || true
+        touch {output}
+        """
+
+
+rule run_telogator2:
+    input: get_input_path
+    output: touch(f"{OUTPUT_DIR}/results_telogator2/.done")
+    threads: THREADS
+    params:
+        read_type=lambda w: "hifi" if PLATFORM == "pacbio" else "ont",
+    shell:
+        """
+        telogator2 \
+            -i {input} \
+            -o {OUTPUT_DIR}/results_telogator2 \
+            -r {params.read_type} \
+            -p {threads} \
+            -l 4000 \
+            || true
+        touch {output}
+        """
+
+
+rule run_topsicle:
+    input: get_input_path
+    output: touch(f"{OUTPUT_DIR}/results_topsicle/.done")
+    threads: THREADS
+    shell:
+        """
+        topsicle \
+            --inputDir {input} \
+            --outputDir {OUTPUT_DIR}/results_topsicle \
+            --pattern CCCTAA \
+            --threads {threads} \
+            --cutoff 0.7 \
+            --minSeqLength 1000 \
+            || true
+        touch {output}
+        """
+
+
+def get_tool_done_files(wildcards):
+    """Return .done files for all requested tools."""
+    files = []
+    for tool in TOOLS:
+        done = f"{OUTPUT_DIR}/results_{tool.replace('-', '_')}/.done"
+        files.append(done)
+    return files
+
+
+rule compare_and_report:
+    input:
+        get_tool_done_files
+    output:
+        report=f"{OUTPUT_DIR}/benchmark_report.html",
+        summary=f"{OUTPUT_DIR}/tool_summary.tsv",
+        pairwise=f"{OUTPUT_DIR}/pairwise_read_metrics.tsv",
+    params:
+        platform=PLATFORM,
+        tools=",".join(TOOLS),
+    threads: 1
+    shell:
+        """
+        cd {workflow.basedir} && \
+        python run_benchmark.py \
+            --parse-only \
+            --output {OUTPUT_DIR} \
+            --platform {params.platform} \
+            --tools {params.tools}
+        """

@@ -1,0 +1,12 @@
+# TeloPROBE preset: PacBio HiFi whole-genome sequencing (Mode A)
+mode: "wgs"
+platform: "pacbio"
+min_quality: 20
+min_length: 100
+min_repeats: 100
+motif_density_threshold: 0.75
+start_repeats_frac: 0.85
+post_boundary_ccc_threshold: 0.20
+identity_threshold: 0.9
+mapq_threshold: 30
+changepoint_method: "pelt"

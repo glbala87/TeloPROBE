@@ -1,0 +1,48 @@
+# TeloPROBE Benchmark Configuration
+#
+# Usage:
+#   snakemake -s Snakefile --configfile configs/benchmark_config.yaml -j 4
+#   python run_benchmark.py --input reads.bam -o results/ --platform ont
+
+# --- Input ---
+input_path: ""                    # Path to BAM/CRAM/FASTQ (leave empty for simulation)
+output_dir: "benchmark_output"
+platform: "ont"                   # ont or pacbio
+reference: ""                     # Subtelomeric reference FASTA (optional)
+threads: 4
+
+# --- Tools to benchmark ---
+# Available: teloprobe, telogator2, topsicle, wf-teloseq
+tools:
+  - teloprobe
+  - telogator2
+  - topsicle
+
+# --- Simulation mode ---
+simulate: false
+n_reads: 1000
+sim_tl_mean: 5000
+sim_tl_std: 2000
+sim_error_rate: 0.02              # 2% error rate
+sim_tvr_fraction: 0.05            # 5% TVR content
+
+# --- Tool-specific settings ---
+telogator2:
+  min_length: 4000
+  min_cluster_reads: 3
+  atl_method: "p75"
+
+topsicle:
+  pattern: "CCCTAA"
+  cutoff: 0.7
+  min_seq_length: 1000            # Lowered for benchmarking (default 9000)
+  window_size: 100
+
+teloprobe:
+  mode: "teloprobe"
+  min_repeats: 100
+  changepoint_method: "pelt"
+  bootstrap_n: 500                # Reduced for speed during benchmarking
+
+wf_teloseq:
+  profile: "standard"             # Docker profile

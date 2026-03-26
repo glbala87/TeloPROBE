@@ -1,0 +1,24 @@
+{
+  "canonical_forward": ["TTAGGG", "TAGGGT", "AGGGTT", "GGGTTA", "GGTTAG", "GTTAGG"],
+  "canonical_reverse": ["CCCTAA", "CCTAAC", "CTAACC", "TAACCC", "AACCCT", "ACCCTA"],
+  "variant_repeats": {
+    "CACCCT": {"type": "tvr", "organism": "human", "frequency": "common"},
+    "ACCCCT": {"type": "tvr", "organism": "human", "frequency": "rare"},
+    "CCCAAA": {"type": "tvr", "organism": "human", "frequency": "rare"},
+    "CCCCGA": {"type": "tvr", "organism": "human", "frequency": "rare"},
+    "CCCTGA": {"type": "tvr", "organism": "human", "frequency": "rare"},
+    "CCCTCA": {"type": "tvr", "organism": "human", "frequency": "common"},
+    "CCCTAC": {"type": "tvr", "organism": "human", "frequency": "rare"},
+    "CCCTAT": {"type": "tvr", "organism": "human", "frequency": "rare"},
+    "CCCTAG": {"type": "tvr", "organism": "human", "frequency": "rare"},
+    "TTGGGG": {"type": "tvr", "organism": "human", "frequency": "common"},
+    "TGAGGG": {"type": "tvr", "organism": "human", "frequency": "common"},
+    "TCAGGG": {"type": "tvr", "organism": "human", "frequency": "common"},
+    "TTCGGG": {"type": "tvr", "organism": "human", "frequency": "rare"},
+    "ATAGGG": {"type": "tvr", "organism": "human", "frequency": "rare"},
+    "GTAGGG": {"type": "tvr", "organism": "human", "frequency": "rare"},
+    "CTAGGG": {"type": "tvr", "organism": "human", "frequency": "rare"}
+  },
+  "description": "Telomere repeat motif library for human (Homo sapiens). Canonical motif is TTAGGG on the G-rich strand. TVRs are variant hexanucleotide repeats found interspersed within telomeric tracts.",
+  "version": "1.0.0"
+}
